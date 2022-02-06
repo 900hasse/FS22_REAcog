@@ -114,8 +114,8 @@ function REAcog:CalculateNewCenterOfMass(vehicle)
 	if vehicle.spec_wheels ~= nil then
 		if vehicle.spec_wheels.wheels ~= nil then 
 			-- Print info
-			print("----------------------------------------------------------------------------------------")
-			print("Name: " .. vehicle:getFullName())
+			REAcog:PrintDebug("----------------------------------------------------------------------------------------")
+			REAcog:PrintDebug("Name: " .. vehicle:getFullName())
 			-- Get number of components
 			local NumOfComp = table.getn(vehicle.components);
 			local CurrentComp = 0;
@@ -190,12 +190,12 @@ function REAcog:CalculateNewCenterOfMass(vehicle)
 							end;
 							-- If not crawler use wheel as reference else use rotating part
 							if not component.IsCrawler then
-								print("Use wheel height=Tires")
+								REAcog:PrintDebug("Use wheel height=Tires")
 								if WheelY < WheelHeight or WheelHeight == 0 then
 									WheelHeight = WheelY;
 								end;
 							else
-								print("Use rotating part height=Crawlers")
+								REAcog:PrintDebug("Use rotating part height=Crawlers")
 								if RotHeight > WheelHeight then
 									WheelHeight = RotHeight;
 								end;
@@ -232,7 +232,7 @@ function REAcog:CalculateNewCenterOfMass(vehicle)
 				-- Choose wheel height, choose lowest wheel if vehicle have got a short wheel base;
 				if DistanceWheelsZ > 1 and not component.IsCrawler then
 					WheelHeight = WheelAvarageY;
-					print("Use average height")
+					REAcog:PrintDebug("Use average height")
 				end;
 
 				-- New center of mass Y value
@@ -300,29 +300,29 @@ function REAcog:CalculateNewCenterOfMass(vehicle)
 					UpdateZ = NewCenterZ+AddZ;
 				end;
 				-- Set new center of mass
-				print("-----------------")
-				print("Component: " .. getName(component.node) .. ", component: " .. CurrentComp .. " of " .. NumOfComp)
+				REAcog:PrintDebug("-----------------")
+				REAcog:PrintDebug("Component: " .. getName(component.node) .. ", component: " .. CurrentComp .. " of " .. NumOfComp)
 				if component.UpdateYValue or component.UpdateZValue then
 					setCenterOfMass(component.node, UpdateX, UpdateY, UpdateZ);
 					--Print info
-					print("Center of mass changed by REA")
+					REAcog:PrintDebug("Center of mass changed by REA")
 					if AddX ~= 0 or AddY ~= 0 or AddZ ~= 0 then
-						print("Center of mass, Component XML: X=" .. component.OriginalCOGX .. "m, Y=" .. component.OriginalCOGY .. "m, Z=" .. component.OriginalCOGZ .. "m");
-						print("Center of mass, After load finished: X=" .. REAcog:RoundValueTwoDecimals(cx) .. "m, Y=" .. REAcog:RoundValueTwoDecimals(cy) .. "m, Z=" .. REAcog:RoundValueTwoDecimals(cz) .. "m");
-						print("Center of mass, adjustments by vehicle customization: X=" .. AddX .. "m, Y=" .. AddY .. "m, Z=" .. AddZ .. "m");
+						REAcog:PrintDebug("Center of mass, Component XML: X=" .. component.OriginalCOGX .. "m, Y=" .. component.OriginalCOGY .. "m, Z=" .. component.OriginalCOGZ .. "m");
+						REAcog:PrintDebug("Center of mass, After load finished: X=" .. REAcog:RoundValueTwoDecimals(cx) .. "m, Y=" .. REAcog:RoundValueTwoDecimals(cy) .. "m, Z=" .. REAcog:RoundValueTwoDecimals(cz) .. "m");
+						REAcog:PrintDebug("Center of mass, adjustments by vehicle customization: X=" .. AddX .. "m, Y=" .. AddY .. "m, Z=" .. AddZ .. "m");
 					end;
-					print("Y(height) original: " .. REAcog:RoundValueTwoDecimals(cy) .. "m, new: " .. REAcog:RoundValueTwoDecimals(UpdateY) .. "m");
-					print("Z(length) original: " .. REAcog:RoundValueTwoDecimals(cz) .. "m, new: " .. REAcog:RoundValueTwoDecimals(UpdateZ) .. "m");
-					print("Number of wheels: " .. NumberOfWheel .. ", Wheel height: " .. REAcog:RoundValueTwoDecimals(WheelHeight) .. "m, Largest wheel radius: " .. REAcog:RoundValueTwoDecimals(LargestWheelRadius));
-					print("Component Mass: " .. component.mass * 1000 .. "kg");
+					REAcog:PrintDebug("Y(height) original: " .. REAcog:RoundValueTwoDecimals(cy) .. "m, new: " .. REAcog:RoundValueTwoDecimals(UpdateY) .. "m");
+					REAcog:PrintDebug("Z(length) original: " .. REAcog:RoundValueTwoDecimals(cz) .. "m, new: " .. REAcog:RoundValueTwoDecimals(UpdateZ) .. "m");
+					REAcog:PrintDebug("Number of wheels: " .. NumberOfWheel .. ", Wheel height: " .. REAcog:RoundValueTwoDecimals(WheelHeight) .. "m, Largest wheel radius: " .. REAcog:RoundValueTwoDecimals(LargestWheelRadius));
+					REAcog:PrintDebug("Component Mass: " .. component.mass * 1000 .. "kg");
 					if component.IsCrawler then
-						print("Component is crawler");
+						REAcog:PrintDebug("Component is crawler");
 					end;
 				else
-					print("REA, Center of mass checked but not changed")
+					REAcog:PrintDebug("REA, Center of mass checked but not changed")
 				end;
 			end;
-			print("----------------------------------------------------------------------------------------")
+			REAcog:PrintDebug("----------------------------------------------------------------------------------------")
 		end;
 	end;
 end
@@ -522,10 +522,21 @@ function REAcog:updateWheelBase(wheel)
 end
 
 
+-----------------------------------------------------------------------------------	
+-- Function to print debug values
+-----------------------------------------------------------------------------------
+function REAcog:PrintDebug(text)
+	if REAcog.Debug then
+		print(text);
+	end;
+end
+
+
 if REAcog.ModActivated == nil then
 
 	addModEventListener(REAcog);
 	REAcog.ModActivated = true;
+	REAcog.Debug = false;
 	REAcog.FilePath = g_currentModDirectory;
 	print("mod activated")
 

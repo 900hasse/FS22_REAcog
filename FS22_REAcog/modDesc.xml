@@ -5,8 +5,8 @@
 	<title>
         <en>REA22 Center Of Gravity</en>
     </title>
-    <description>
-        <en>
+<description>
+<en>
 <![CDATA[The goal of this mod is to make the game feel more realistic and
 customizing the vehicle for the task more rewarding.
 The goal is to make the mod universal.
@@ -16,25 +16,25 @@ No changes in XML is needed. Some data from XML is overwritten!
 Center of gravity is changed based on the position of the wheels axis and radius:
 Typical center of mass is 25cm above rear wheel axle.
 Wheel width and twin wheels now effects stability:
-Wider tires or twin wheels for more stability
-Narrow tires for less stability.
+- Wider tires or twin wheels for more stability
+- Narrow tires for less stability.
 ]]>
 </en>
 <de>
-<![CDATA[Das Ziel dieses Mods ist es, dass Spielgefühl realistischer zu machen und
-das Anpassen des Fahrzeugs für die Aufgabe lohnender zu machen.
-Ziel ist es ebenfalls die Mod universell zu machen.
-Diese Mod unterstützt Multiplayer und dedizierte Server.
-Es werden keine Änderungen im XML benötigt. Einige Daten aus der XML werden überschrieben!
+<![CDATA[Das Ziel dieses Mods ist es, das Spiel realistischer und
+die Anpassung des Fahrzeugs an die jeweilige Aufgabe lohnender zu machen.
+Es soll den Mod auch versuchen universell zu machen.
+Dieser Mod unterstützt den Multiplayer und dedizierte Server.
+Es sind keine XML-Änderungen erforderlich. Einige Daten aus XML werden überschrieben!
 
 Der Schwerpunkt wird basierend auf der Position der Radachse und dem Radius geändert:
 Der typische Massenschwerpunkt liegt 25 cm über der Hinterradachse.
-Radbreite und Zwillingsräder wirken sich jetzt auf Stabilität aus:
-Breitere Reifen oder Zwillingsräder für mehr Stabilität
-Schmale Reifen für weniger Stabilität.
+Reifenbreite und Zwillingsbereifung wirken sich jetzt auf die Stabilität aus:
+- Breitere Reifen oder Doppelbereifung für mehr Stabilität
+- Schmale Reifen für weniger Stabilität.
 ]]>
 </de>
-    </description>
+</description>
 	<l10n>
 	</l10n>
     <iconFilename>icon_REAcog.dds</iconFilename>
