@@ -3,7 +3,7 @@
 -- author: 900Hasse
 -- date: 23.11.2021
 --
--- V1.0.0.0
+-- V1.0.1.0
 --
 -----------------------------------------
 -- TO DO
@@ -27,18 +27,17 @@ function REAcog.prerequisitesPresent(specializations)
 end;
 
 function REAcog:update(dt)
-
 	-----------------------------------------------------------------------------------
 	-- Debug center of gravity
 	-----------------------------------------------------------------------------------
 	-- Debug CenterOfMass
-	local DebugCOF = false
+	local DebugCOF = false;
 	if DebugCOF then
 		if REAcog.DebugTimer == nil then
 			REAcog.DebugTimer = 0;
 		end;
 		-- Count debug timer
-		if REAcog.DebugTimer < 10000 then
+		if REAcog.DebugTimer < 5000 then
 			REAcog.DebugTimer = REAcog.DebugTimer + dt;
 		else
 			REAcog.DebugTimer = 0;
@@ -58,17 +57,34 @@ function REAcog:update(dt)
 							-- Get translation
 							local wx, wy, wz;
 							local COGNode = createTransformGroup("COGNode");
+							local COGNoAddMassNode = createTransformGroup("COGNoAddMassNode");
+							local COGAddMassNode = createTransformGroup("COGAddMassNodeNode");
 							-- Create nodes for search region
-							if REAcog.DebugTimer < 5000 then
-								wx, wy, wz = localToWorld(component.node, component.OriginalCogX, component.OriginalCogY, component.OriginalCogZ);
-								setTranslation(COGNode, wx, wy, wz);
-							else
+						--	if REAcog.DebugTimer < 2500 and  component.OriginalCogX ~= nil then
+						--		wx, wy, wz = localToWorld(component.node, component.OriginalCogX, component.OriginalCogY, component.OriginalCogZ);
+						--		setTranslation(COGNode, wx, wy, wz);
+						--	else
 								local cx, cy, cz = getCenterOfMass(component.node);
 								wx, wy, wz = localToWorld(component.node, cx, cy, cz);
 								setTranslation(COGNode, wx, wy, wz);
+								if component.ReaCOGX ~= nil then
+									wx, wy, wz = localToWorld(component.node, component.ReaCOGX, component.ReaCOGY, component.ReaCOGZ);
+									setTranslation(COGNoAddMassNode, wx, wy, wz);
+								end;
+								if component.AdditionalMassCOGX ~= nil then
+									wx, wy, wz = localToWorld(component.node, component.AdditionalMassCOGX, component.AdditionalMassCOGY, component.AdditionalMassCOGZ);
+									setTranslation(COGAddMassNode, wx, wy, wz);
+								end;
+						--	end;
+							DebugUtil.drawDebugNode(COGNode,"C", false)
+							if component.ReaCOGX ~= nil then
+								DebugUtil.drawDebugNode(COGNoAddMassNode,"D", false)
 							end;
-							DebugUtil.drawDebugNode(COGNode,"X", false)
+							if component.AdditionalMassCOGX ~= nil then
+								DebugUtil.drawDebugNode(COGAddMassNode,"A", false)
+							end;
 						end;
+
 						if false then
 							if vehicle.spec_wheels ~= nil then
 								if vehicle.spec_wheels.wheels ~= nil then 
@@ -119,7 +135,6 @@ function REAcog:CalculateNewCenterOfMass(vehicle)
 			-- Get number of components
 			local NumOfComp = table.getn(vehicle.components);
 			local CurrentComp = 0;
-
 
 			-- Get number of wheels
 			local numVehicleWheels = table.getn(vehicle.spec_wheels.wheels);
@@ -288,22 +303,22 @@ function REAcog:CalculateNewCenterOfMass(vehicle)
 				end;
 
 				-- Updates
-				local UpdateX = cx;
-				local UpdateY = cy;
-				local UpdateZ = cz;
+				component.ReaCOGX = cx;
+				component.ReaCOGY = cy;
+				component.ReaCOGZ = cz;
 				-- Update Y value
 				if component.UpdateYValue then
-					UpdateY = NewCenterY+AddY;
+					component.ReaCOGY = NewCenterY+AddY;
 				end;
 				-- Update Z value
 				if component.UpdateZValue then
-					UpdateZ = NewCenterZ+AddZ;
+					component.ReaCOGZ = NewCenterZ+AddZ;
 				end;
 				-- Set new center of mass
 				REAcog:PrintDebug("-----------------")
 				REAcog:PrintDebug("Component: " .. getName(component.node) .. ", component: " .. CurrentComp .. " of " .. NumOfComp)
 				if component.UpdateYValue or component.UpdateZValue then
-					setCenterOfMass(component.node, UpdateX, UpdateY, UpdateZ);
+					setCenterOfMass(component.node, component.ReaCOGX, component.ReaCOGY, component.ReaCOGZ);
 					--Print info
 					REAcog:PrintDebug("Center of mass changed by REA")
 					if AddX ~= 0 or AddY ~= 0 or AddZ ~= 0 then
@@ -311,8 +326,8 @@ function REAcog:CalculateNewCenterOfMass(vehicle)
 						REAcog:PrintDebug("Center of mass, After load finished: X=" .. REAcog:RoundValueTwoDecimals(cx) .. "m, Y=" .. REAcog:RoundValueTwoDecimals(cy) .. "m, Z=" .. REAcog:RoundValueTwoDecimals(cz) .. "m");
 						REAcog:PrintDebug("Center of mass, adjustments by vehicle customization: X=" .. AddX .. "m, Y=" .. AddY .. "m, Z=" .. AddZ .. "m");
 					end;
-					REAcog:PrintDebug("Y(height) original: " .. REAcog:RoundValueTwoDecimals(cy) .. "m, new: " .. REAcog:RoundValueTwoDecimals(UpdateY) .. "m");
-					REAcog:PrintDebug("Z(length) original: " .. REAcog:RoundValueTwoDecimals(cz) .. "m, new: " .. REAcog:RoundValueTwoDecimals(UpdateZ) .. "m");
+					REAcog:PrintDebug("Y(height) original: " .. REAcog:RoundValueTwoDecimals(cy) .. "m, new: " .. REAcog:RoundValueTwoDecimals(component.ReaCOGY) .. "m");
+					REAcog:PrintDebug("Z(length) original: " .. REAcog:RoundValueTwoDecimals(cz) .. "m, new: " .. REAcog:RoundValueTwoDecimals(component.ReaCOGZ) .. "m");
 					REAcog:PrintDebug("Number of wheels: " .. NumberOfWheel .. ", Wheel height: " .. REAcog:RoundValueTwoDecimals(WheelHeight) .. "m, Largest wheel radius: " .. REAcog:RoundValueTwoDecimals(LargestWheelRadius));
 					REAcog:PrintDebug("Component Mass: " .. component.mass * 1000 .. "kg");
 					if component.IsCrawler then
@@ -523,6 +538,147 @@ end
 
 
 -----------------------------------------------------------------------------------	
+-- Edited updateMass
+-----------------------------------------------------------------------------------
+function REAcog:updateMass()
+    self.serverMass = 0
+    for _, component in ipairs(self.components) do
+        if component.defaultMass == nil then
+            if component.isDynamic then
+                component.defaultMass = getMass(component.node)
+            else
+                component.defaultMass = 1
+            end
+            component.mass = component.defaultMass
+        end
+
+        local mass = self:getAdditionalComponentMass(component)
+        component.mass = component.defaultMass + mass
+        self.serverMass = self.serverMass + component.mass
+    end
+    local realTotalMass = 0
+    for _, component in ipairs(self.components) do
+        realTotalMass = realTotalMass + self:getComponentMass(component)
+    end
+    self.precalculatedMass = realTotalMass - self.serverMass
+    for _, component in ipairs(self.components) do
+        local maxFactor = self.serverMass / (self.maxComponentMass - self.precalculatedMass)
+        if maxFactor > 1 then
+            component.mass = component.mass / maxFactor
+        end
+        -- only update physically mass if difference to last mass is greater 20kg
+        if self.isServer and component.isDynamic and math.abs(component.lastMass-component.mass) > 0.02 then
+            setMass(component.node, component.mass)
+            component.lastMass = component.mass
+			--------------
+			-- REA Edit --
+			--------------		
+			if component.ReaCOGX ~= nil and component.ReaCOGY ~= nil and component.ReaCOGZ ~= nil and component.AdditionalMassCOGX ~= nil and component.AdditionalMassCOGY ~= nil and component.AdditionalMassCOGZ ~= nil then
+				local COGX = REAcog:GetCenterOfMassTwoObjects(component.ReaCOGX,component.defaultMass,component.AdditionalMassCOGX,component.mass-component.defaultMass);
+				local COGY = REAcog:GetCenterOfMassTwoObjects(component.ReaCOGY,component.defaultMass,component.AdditionalMassCOGY,component.mass-component.defaultMass);
+				local COGZ = REAcog:GetCenterOfMassTwoObjects(component.ReaCOGZ,component.defaultMass,component.AdditionalMassCOGZ,component.mass-component.defaultMass);
+				setCenterOfMass(component.node, COGX, COGY, COGZ);
+			end;
+			--------------
+        end
+    end
+    self.serverMass = math.min(self.serverMass, self.maxComponentMass - self.precalculatedMass)
+end
+
+-----------------------------------------------------------------------------------	
+-- Edited getAdditionalComponentMass
+-----------------------------------------------------------------------------------
+function REAcog:getAdditionalComponentMass(superFunc, component)
+    local additionalMass = superFunc(self, component)
+    local spec = self.spec_fillUnit
+	--------------
+	-- REA Edit --
+	--------------
+	if component.ReaCOGX ~= nil and component.ReaCOGY ~= nil and component.ReaCOGZ ~= nil then
+		component.AdditionalMassCOGX = component.ReaCOGX;
+		component.AdditionalMassCOGY = component.ReaCOGY;
+		component.AdditionalMassCOGZ = component.ReaCOGZ;
+	else
+		component.AdditionalMassCOGX, component.AdditionalMassCOGY, component.AdditionalMassCOGZ = getCenterOfMass(component.node);
+	end;
+	
+    for _, fillUnit in ipairs(spec.fillUnits) do
+        if fillUnit.updateMass and fillUnit.fillMassNode == component.node and fillUnit.fillType ~= nil and fillUnit.fillType ~= FillType.UNKNOWN then
+            local desc = g_fillTypeManager:getFillTypeByIndex(fillUnit.fillType)
+            local mass = fillUnit.fillLevel * desc.massPerLiter
+			--------------
+			-- REA Edit --
+			--------------
+			if mass > 0 then
+				local AddMassCOGX, AddMassCOGY, AddMassCOGZ = 0,0,0;
+				if fillUnit.fillType ~= FillType.DIESEL and fillUnit.fillType ~= FillType.DEF then
+					local t = self:getFillUnitFillLevelPercentage(fillUnit.fillUnitIndex)
+					local FillVolumeFound = false;
+					if self.spec_fillVolume ~= nil then
+						local fillVolumes = self.spec_fillVolume
+						for _, fillVolume in ipairs(fillVolumes.volumes) do
+							if fillUnit.fillUnitIndex == fillVolume.fillUnitIndex then
+								FillVolumeFound = true;
+								local pX,_,pZ,R = getShapeBoundingSphere(fillVolume.volume);
+								local x,y,z = localToLocal(fillVolume.baseNode, component.node,pX,0,pZ);
+								AddMassCOGX = x;
+								AddMassCOGY = (getFillPlaneHeightAtLocalPos(fillVolume.volume, pX, pZ) / 2) + y + fillVolume.heightOffset;
+								AddMassCOGZ = z;
+								-- Debug
+								--DebugUtil.drawDebugNode(fillVolume.baseNode,"X=" .. pX .. " Z=" .. pZ .. " R=" .. R, false);
+							end;
+						end;
+					end;
+					if not FillVolumeFound then
+						-- If there is no fill volume, use generic value for example liquids
+						local MaxHeight = 0.5;
+						if fillUnit.capacity > 0 then
+							MaxHeight = MathUtil.clamp(fillUnit.capacity / 4000, 0.25, 1.25);
+						end;
+						if component.ReaCOGX ~= nil then
+							AddMassCOGX = component.ReaCOGX;
+							AddMassCOGY = component.ReaCOGY;
+							AddMassCOGZ = component.ReaCOGZ;
+						else
+							AddMassCOGX, AddMassCOGY, AddMassCOGZ = getCenterOfMass(component.node);
+						end;
+						AddMassCOGY = (MaxHeight * t) + AddMassCOGY;
+				--		-- Debug
+				--		DebugUtil.drawDebugNode(fillUnit.fillMassNode,"T " .. REAcog:RoundValueTwoDecimals(self:getFillUnitFillLevelPercentage(fillUnit.fillUnitIndex)), false)
+					end;
+				else
+					-- If diesel or DEF, add mass att center of gravity
+					if component.ReaCOGX ~= nil then
+						AddMassCOGX = component.ReaCOGX;
+						AddMassCOGY = component.ReaCOGY;
+						AddMassCOGZ = component.ReaCOGZ;
+					else
+						AddMassCOGX, AddMassCOGY, AddMassCOGZ = getCenterOfMass(component.node);
+					end;
+				end;
+				component.AdditionalMassCOGX = REAcog:GetCenterOfMassTwoObjects(component.AdditionalMassCOGX,additionalMass,AddMassCOGX,mass);
+				component.AdditionalMassCOGY = REAcog:GetCenterOfMassTwoObjects(component.AdditionalMassCOGY,additionalMass,AddMassCOGY,mass);
+				component.AdditionalMassCOGZ = REAcog:GetCenterOfMassTwoObjects(component.AdditionalMassCOGZ,additionalMass,AddMassCOGZ,mass);
+			end;
+			--------------
+            additionalMass = additionalMass + mass
+        end
+    end
+    return additionalMass
+end
+
+
+-----------------------------------------------------------------------------------	
+-- Edited updateWheelBase
+-----------------------------------------------------------------------------------
+function REAcog:GetCenterOfMassTwoObjects(P1,M1,P2,M2)
+	if M1 > 0 or M2 > 0 then
+		return ((P1 * M1) + (P2 * M2)) / (M1 + M2);
+	end;
+end;
+
+
+-----------------------------------------------------------------------------------	
 -- Function to print debug values
 -----------------------------------------------------------------------------------
 function REAcog:PrintDebug(text)
@@ -548,6 +704,8 @@ if REAcog.ModActivated == nil then
 
 	REAcog.OriginalupdateWheelBase = Wheels.updateWheelBase;
 	Wheels.updateWheelBase = REAcog.updateWheelBase;
+	Vehicle.updateMass = REAcog.updateMass;
+	FillUnit.getAdditionalComponentMass = REAcog.getAdditionalComponentMass;
 
 	-- Standard functions exchanged
 	print("New REA functions loaded")

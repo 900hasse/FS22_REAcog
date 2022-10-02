@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="64">
     <author>900Hasse</author>
-	<version>1.0.0.0</version>
+	<version>1.0.1.0</version>
 	<title>
         <en>REA22 Center Of Gravity</en>
     </title>
@@ -18,6 +18,11 @@ Typical center of mass is 25cm above rear wheel axle.
 Wheel width and twin wheels now effects stability:
 - Wider tires or twin wheels for more stability
 - Narrow tires for less stability.
+
+1.0.1.0
+Center of mass changes if there is anything loaded to the vehicle:
+- If there is a fill volume the center of mass moves towards the center of the fill volume.
+- If there is no fill volume the center of mass gets higher at the vehicles center of mass.
 ]]>
 </en>
 <de>
@@ -32,6 +37,11 @@ Der typische Massenschwerpunkt liegt 25 cm über der Hinterradachse.
 Reifenbreite und Zwillingsbereifung wirken sich jetzt auf die Stabilität aus:
 - Breitere Reifen oder Doppelbereifung für mehr Stabilität
 - Schmale Reifen für weniger Stabilität.
+
+1.0.1.0
+Der Schwerpunkt ändert sich, wenn das Fahrzeug beladen ist:
+- Bei einem Füllvolumen verschiebt sich der Massenmittelpunkt in Richtung Füllvolumenmitte.
+- Wenn kein Füllvolumen vorhanden ist, liegt der Schwerpunkt höher als der Schwerpunkt des Fahrzeugs.
 ]]>
 </de>
 </description>
