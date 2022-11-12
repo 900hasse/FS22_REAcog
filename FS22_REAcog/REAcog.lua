@@ -567,7 +567,8 @@ function REAcog:updateMass()
             component.mass = component.mass / maxFactor
         end
         -- only update physically mass if difference to last mass is greater 20kg
-        if self.isServer and component.isDynamic and math.abs(component.lastMass-component.mass) > 0.02 then
+--        if self.isServer and component.isDynamic and math.abs(component.lastMass-component.mass) > 0.02 then
+        if self.isServer and component.isDynamic then
             setMass(component.node, component.mass)
             component.lastMass = component.mass
 			--------------
@@ -669,13 +670,85 @@ end
 
 
 -----------------------------------------------------------------------------------	
--- Edited updateWheelBase
+-- Calculate the center of mass given two center of mass
 -----------------------------------------------------------------------------------
 function REAcog:GetCenterOfMassTwoObjects(P1,M1,P2,M2)
 	if M1 > 0 or M2 > 0 then
 		return ((P1 * M1) + (P2 * M2)) / (M1 + M2);
 	end;
 end;
+
+
+-----------------------------------------------------------------------------------	
+-- Edited onUpdateTick
+-----------------------------------------------------------------------------------
+function REAcog:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
+    local spec = self.spec_fillUnit
+    if self.isServer then
+		-- REA Upate
+		----------------------------------------
+		if self:getIsActive() and not self.isMassDirty then
+			local UpdateRate = 250;
+			-- Initialize timer
+			if spec.MassUpdateTimer == nil then
+				spec.MassUpdateTimer = UpdateRate;
+			end;
+			-- Update Timer
+			if spec.MassUpdateTimer < 0 then
+				spec:getFullName()
+				--print(spec:getFullName() .. " = SetMass");
+				self:setMassDirty()
+				spec.MassUpdateTimer = UpdateRate;
+			else
+				spec.MassUpdateTimer = spec.MassUpdateTimer - dt;
+			end;
+		end;
+		----------------------------------------
+		if spec.fillTrigger.isFilling then
+			local delta = 0
+			local trigger = spec.fillTrigger.currentTrigger
+			if trigger ~= nil then
+				delta = spec.fillTrigger.litersPerSecond*dt*0.001
+				delta = trigger:fillVehicle(self, delta, dt)
+			end
+			if delta <= 0 then
+				self:setFillUnitIsFilling(false)
+			end
+		end
+    end
+    if self.isClient then
+        for _, fillUnit in pairs(spec.fillUnits) do
+            self:updateMeasurementNodes(fillUnit, dt, false)
+        end
+        self:updateAlarmTriggers(spec.activeAlarmTriggers)
+        local needsUpdate = false
+        -- stop effects
+        for effect, time in pairs(spec.activeFillEffects) do
+            time = time - dt
+            if time < 0 then
+                g_effectManager:stopEffects(effect)
+                spec.activeFillEffects[effect] = nil
+            else
+                needsUpdate = true
+                spec.activeFillEffects[effect] = time
+            end
+        end
+        -- stop animations
+        for animationNodes, time in pairs(spec.activeFillAnimations) do
+            time = time - dt
+            if time < 0 then
+                g_animationManager:stopAnimations(animationNodes)
+                spec.activeFillAnimations[animationNodes] = nil
+            else
+                needsUpdate = true
+                spec.activeFillAnimations[animationNodes] = time
+            end
+        end
+        if needsUpdate then
+            self:raiseActive()
+        end
+    end
+end
 
 
 -----------------------------------------------------------------------------------	
@@ -706,6 +779,7 @@ if REAcog.ModActivated == nil then
 	Wheels.updateWheelBase = REAcog.updateWheelBase;
 	Vehicle.updateMass = REAcog.updateMass;
 	FillUnit.getAdditionalComponentMass = REAcog.getAdditionalComponentMass;
+	FillUnit.onUpdateTick = REAcog.onUpdateTick;
 
 	-- Standard functions exchanged
 	print("New REA functions loaded")
