@@ -3,7 +3,7 @@
 -- author: 900Hasse
 -- date: 23.11.2021
 --
--- V1.0.1.0
+-- V1.0.1.1
 --
 -----------------------------------------
 -- TO DO
@@ -566,22 +566,25 @@ function REAcog:updateMass()
         if maxFactor > 1 then
             component.mass = component.mass / maxFactor
         end
-        -- only update physically mass if difference to last mass is greater 20kg
---        if self.isServer and component.isDynamic and math.abs(component.lastMass-component.mass) > 0.02 then
-        if self.isServer and component.isDynamic then
+		--------------
+		-- REA Edit --
+		--------------		
+        -- only update physically mass if difference to last mass is greater 20kg or beeing forced from additional mass calculation
+		if component.REAUpdateCOG == nil then
+			component.REAUpdateCOG = false;
+		end;
+        if self.isServer and component.isDynamic and (math.abs(component.lastMass-component.mass) > 0.02 or component.REAUpdateCOG) then
             setMass(component.node, component.mass)
             component.lastMass = component.mass
-			--------------
-			-- REA Edit --
-			--------------		
 			if component.ReaCOGX ~= nil and component.ReaCOGY ~= nil and component.ReaCOGZ ~= nil and component.AdditionalMassCOGX ~= nil and component.AdditionalMassCOGY ~= nil and component.AdditionalMassCOGZ ~= nil then
 				local COGX = REAcog:GetCenterOfMassTwoObjects(component.ReaCOGX,component.defaultMass,component.AdditionalMassCOGX,component.mass-component.defaultMass);
 				local COGY = REAcog:GetCenterOfMassTwoObjects(component.ReaCOGY,component.defaultMass,component.AdditionalMassCOGY,component.mass-component.defaultMass);
 				local COGZ = REAcog:GetCenterOfMassTwoObjects(component.ReaCOGZ,component.defaultMass,component.AdditionalMassCOGZ,component.mass-component.defaultMass);
 				setCenterOfMass(component.node, COGX, COGY, COGZ);
+				component.REAUpdateCOG = false;
 			end;
-			--------------
         end
+		--------------
     end
     self.serverMass = math.min(self.serverMass, self.maxComponentMass - self.precalculatedMass)
 end
@@ -610,7 +613,7 @@ function REAcog:getAdditionalComponentMass(superFunc, component)
 			--------------
 			-- REA Edit --
 			--------------
-			if mass > 0 then
+			if mass > 1 then
 				local AddMassCOGX, AddMassCOGY, AddMassCOGZ = 0,0,0;
 				if fillUnit.fillType ~= FillType.DIESEL and fillUnit.fillType ~= FillType.DEF then
 					local t = self:getFillUnitFillLevelPercentage(fillUnit.fillUnitIndex)
@@ -647,6 +650,7 @@ function REAcog:getAdditionalComponentMass(superFunc, component)
 				--		-- Debug
 				--		DebugUtil.drawDebugNode(fillUnit.fillMassNode,"T " .. REAcog:RoundValueTwoDecimals(self:getFillUnitFillLevelPercentage(fillUnit.fillUnitIndex)), false)
 					end;
+					component.REAUpdateCOG = true;
 				else
 					-- If diesel or DEF, add mass att center of gravity
 					if component.ReaCOGX ~= nil then
@@ -688,7 +692,7 @@ function REAcog:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelecti
 		-- REA Upate
 		----------------------------------------
 		if self:getIsActive() and not self.isMassDirty then
-			local UpdateRate = 250;
+			local UpdateRate = 500;
 			-- Initialize timer
 			if spec.MassUpdateTimer == nil then
 				spec.MassUpdateTimer = UpdateRate;

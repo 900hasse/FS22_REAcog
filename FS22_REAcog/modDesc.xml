@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="71">
+<modDesc descVersion="72">
     <author>900Hasse</author>
-	<version>1.0.1.0</version>
+	<version>1.0.1.1</version>
 	<title>
         <en>REA22 Center Of Gravity</en>
     </title>
@@ -23,6 +23,12 @@ Wheel width and twin wheels now effects stability:
 Center of mass changes if there is anything loaded to the vehicle:
 - If there is a fill volume the center of mass moves towards the center of the fill volume.
 - If there is no fill volume the center of mass gets higher at the vehicles center of mass.
+
+1.0.1.1
+Changes for center of mass for fill volumes:
+- Is now updated less frequently.
+- Is only updated with a load.
+- Is only updated for active vehicles.
 ]]>
 </en>
 <de>
@@ -42,6 +48,12 @@ Reifenbreite und Zwillingsbereifung wirken sich jetzt auf die Stabilität aus:
 Der Schwerpunkt ändert sich, wenn das Fahrzeug beladen ist:
 - Bei einem Füllvolumen verschiebt sich der Massenmittelpunkt in Richtung Füllvolumenmitte.
 - Wenn kein Füllvolumen vorhanden ist, liegt der Schwerpunkt höher als der Schwerpunkt des Fahrzeugs.
+
+1.0.1.1
+Änderungen des Massenschwerpunkts für Füllvolumina:
+- Wird jetzt seltener aktualisiert.
+- Wird nur bei Last aktualisiert.
+- Wird nur für aktive Fahrzeuge aktualisiert.
 ]]>
 </de>
 </description>
