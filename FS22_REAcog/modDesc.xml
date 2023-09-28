@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="72">
+<modDesc descVersion="77">
     <author>900Hasse</author>
-	<version>1.0.1.1</version>
+	<version>1.0.1.2</version>
 	<title>
         <en>REA22 Center Of Gravity</en>
     </title>
@@ -29,6 +29,9 @@ Changes for center of mass for fill volumes:
 - Is now updated less frequently.
 - Is only updated with a load.
 - Is only updated for active vehicles.
+
+1.0.1.2
+Fixed tilting behavior of some implements like Horsch seeders or Weber MT silage compressor
 ]]>
 </en>
 <de>
@@ -54,6 +57,9 @@ Der Schwerpunkt ändert sich, wenn das Fahrzeug beladen ist:
 - Wird jetzt seltener aktualisiert.
 - Wird nur bei Last aktualisiert.
 - Wird nur für aktive Fahrzeuge aktualisiert.
+
+1.0.1.2
+Das Kippverhalten einiger Geräte wie Horsch-Sämaschinen oder Weber MT-Silagekompressor wurde korrigiert
 ]]>
 </de>
 </description>

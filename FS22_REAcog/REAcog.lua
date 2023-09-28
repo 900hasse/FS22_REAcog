@@ -3,7 +3,7 @@
 -- author: 900Hasse
 -- date: 23.11.2021
 --
--- V1.0.1.1
+-- V1.0.1.2
 --
 -----------------------------------------
 -- TO DO
@@ -135,6 +135,12 @@ function REAcog:CalculateNewCenterOfMass(vehicle)
 			-- Get number of components
 			local NumOfComp = table.getn(vehicle.components);
 			local CurrentComp = 0;
+			local motorized_vehicle = false
+			if vehicle.spec_motorized ~= nil then
+				if vehicle.spec_motorized.motor ~= nil then
+					motorized_vehicle = true
+				end;
+			end
 
 			-- Get number of wheels
 			local numVehicleWheels = table.getn(vehicle.spec_wheels.wheels);
@@ -215,6 +221,8 @@ function REAcog:CalculateNewCenterOfMass(vehicle)
 									WheelHeight = RotHeight;
 								end;
 							end;
+							-- Keep motorized_vehicle information at wheel level
+							wheel.REAcog_motorized_vehicle = motorized_vehicle
 						end;
 					end;
 				end;
@@ -477,6 +485,7 @@ function REAcog:CalcWheelForcePoint(wheel)
 	local WidthOffs = 0;	
 	local AdditionalWidth = 0;
 	local HeightFactor = 0;
+	local WidthOffFactor = 0.95;
 	if wheel.tireType == TireTypeCRAWLER then
 		-- Crawlers
 		local x,y,z = localToLocal(wheel.repr, wheel.node, 0, 0, 0);
@@ -485,7 +494,7 @@ function REAcog:CalcWheelForcePoint(wheel)
 		else
 			dir = 1;
 		end;
-		WidthOffs = ((wheel.width*0.95)/2)*dir;	
+		WidthOffs = ((wheel.width*WidthOffFactor)/2)*dir;	
 		HeightFactor = 0.7;
 	else
 		-- Tires
@@ -493,6 +502,11 @@ function REAcog:CalcWheelForcePoint(wheel)
 			dir = -1
 		end
 		-- Calculate offset of width and additional wheels
+		if not wheel.REAcog_motorized_vehicle then
+			-- if implement (not motorized vehicle) wheel WidthOffFactor = 0.1
+			WidthOffFactor = 0.1
+			REAcog:PrintDebug("Implement wheel " .. tostring(wheel.tireFilename))
+		end
 		if wheel.additionalWheels ~= nil then
 			local numAdditionalWheels = table.getn(wheel.additionalWheels);
 			for AddWheel=1,numAdditionalWheels do
@@ -500,9 +514,9 @@ function REAcog:CalcWheelForcePoint(wheel)
 				AdditionalWidth = AdditionalWidth + (wheel.additionalWheels[AddWheel].width);
 			end;
 			-- Add offset for the wheel furthest out
-			WidthOffs = ((wheel.additionalWheels[numAdditionalWheels].width*0.95)/2)*dir;	
+			WidthOffs = ((wheel.additionalWheels[numAdditionalWheels].width*WidthOffFactor)/2)*dir;	
 		else
-			WidthOffs = ((wheel.width*0.95)/2)*dir;	
+			WidthOffs = ((wheel.width*WidthOffFactor)/2)*dir;	
 		end;
 		AdditionalWidth = AdditionalWidth * dir;
 		HeightFactor = 0.8;
